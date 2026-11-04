@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { ProjectItem, ProjectModal } from './ProjectModal';
@@ -7,6 +7,8 @@ import { soundFX } from '../utils/soundFX';
 export const Projects: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
+  const [dynamicProjects, setDynamicProjects] = useState<ProjectItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const initialProjects: ProjectItem[] = [
     {
@@ -71,6 +73,25 @@ export const Projects: React.FC = () => {
     }
   ];
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch('/api/cms/projects');
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setDynamicProjects(data);
+        } else {
+          setDynamicProjects(initialProjects);
+        }
+      } catch (error) {
+        setDynamicProjects(initialProjects);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
+
   const categories = [
     { id: 'all', label: 'Todos' },
     { id: 'web-design', label: 'Web Design' },
@@ -81,8 +102,8 @@ export const Projects: React.FC = () => {
   ];
 
   const filteredProjects = activeCategory === 'all'
-    ? initialProjects
-    : initialProjects.filter(p => p.categoryKey === activeCategory);
+    ? dynamicProjects
+    : dynamicProjects.filter(p => p.categoryKey === activeCategory);
 
   return (
     <section id="projects" className="relative py-24 bg-[#0b0e1b] border-t border-white/10">

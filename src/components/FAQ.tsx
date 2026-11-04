@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, Sparkles } from 'lucide-react';
 import { soundFX } from '../utils/soundFX';
@@ -43,14 +43,35 @@ const FAQ_ITEMS: FaqItem[] = [
 ];
 
 export const FAQ: React.FC = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0); // First item open by default
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
+  const [dynamicFaqs, setDynamicFaqs] = useState<FaqItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const res = await fetch('/api/cms/faqs');
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setDynamicFaqs(data);
+        } else {
+          setDynamicFaqs(FAQ_ITEMS);
+        }
+      } catch (error) {
+        setDynamicFaqs(FAQ_ITEMS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFaqs();
+  }, []);
 
   const categories = ['Todos', 'Proceso', 'Inversión', 'Tiempos', 'Garantía'];
 
   const filteredFaqs = selectedCategory === 'Todos'
-    ? FAQ_ITEMS
-    : FAQ_ITEMS.filter((item) => item.category === selectedCategory);
+    ? dynamicFaqs
+    : dynamicFaqs.filter((item) => item.category === selectedCategory);
 
   const toggleAccordion = (idx: number) => {
     soundFX.playClick();

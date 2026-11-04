@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Menu, X, ArrowUpRight, Bot, Sun, Moon } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, ArrowUpRight, Bot, Sun, Moon, Lock } from 'lucide-react';
 import { soundFX } from '../utils/soundFX';
 import logoImg from '../assets/images/Logo.png';
 
@@ -20,19 +20,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
       return false;
     }
   });
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const currentScroll = window.scrollY;
-      setScrolled(currentScroll > 40);
-      setScrollProgress(totalScroll > 0 ? (currentScroll / totalScroll) * 100 : 0);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
+  
+  // Theme management effect
   useEffect(() => {
     try {
       localStorage.setItem('codix_theme', isLightMode ? 'light' : 'dark');
@@ -45,6 +34,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
       // ignore
     }
   }, [isLightMode]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const currentScroll = window.scrollY;
+      setScrolled(currentScroll > 40);
+      setScrollProgress(totalScroll > 0 ? (currentScroll / totalScroll) * 100 : 0);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleTheme = () => {
     soundFX.playClick();
@@ -74,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between gap-8">
-          {/* Zone 1: Logo image only (src/assets/images/Logo.png) */}
+          {/* Zone 1: Logo */}
           <a
             href="#"
             onClick={(e) => {
@@ -134,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
             </button>
           </nav>
 
-          {/* Zone 3: 1 primary action, Ro-Bot quick chat & sound toggle */}
+          {/* Zone 3: Actions */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             {onOpenChat && (
               <button

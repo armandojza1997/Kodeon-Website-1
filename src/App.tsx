@@ -14,6 +14,7 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
 import { RoBotChat } from './components/RoBotChat';
+import { AdminCMS } from './components/AdminCMS';
 
 const sectionVariants: any = {
   hidden: { opacity: 0, y: 50 },
@@ -22,6 +23,7 @@ const sectionVariants: any = {
 
 export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   const handleOpenContact = () => {
     const contactEl = document.getElementById('contact');
@@ -34,13 +36,19 @@ export default function App() {
     setIsChatOpen(true);
   };
 
+  // Simple routing for /admin/login
+  const isLoginPage = window.location.pathname === '/admin/login';
+
   return (
     <div className="min-h-screen bg-[#0b0e1b] text-slate-100 relative font-sans antialiased selection:bg-[#EC9731] selection:text-white">
       {/* Custom Interactive Ring Cursor */}
       <CustomCursor />
 
       {/* Top Bar Navigation */}
-      <Navbar onOpenContact={handleOpenContact} onOpenChat={handleOpenChat} />
+      <Navbar 
+        onOpenContact={handleOpenContact} 
+        onOpenChat={handleOpenChat} 
+      />
 
       {/* Main Page Layout Sections */}
       <main>
@@ -92,6 +100,15 @@ export default function App() {
         isOpen={isChatOpen}
         onOpen={() => setIsChatOpen(true)}
         onClose={() => setIsChatOpen(false)}
+      />
+
+      {/* 🔐 Admin CMS Panel - Accessed via /admin/login */}
+      <AdminCMS 
+        isOpen={isAdminOpen || isLoginPage} 
+        onClose={() => {
+          setIsAdminOpen(false);
+          if (isLoginPage) window.history.pushState({}, '', '/');
+        }} 
       />
     </div>
   );
