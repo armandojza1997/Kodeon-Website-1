@@ -43,7 +43,7 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
       const endpoint = `/api/cms/${activeTab}`;
       const res = await fetch(endpoint);
       const data = await res.json();
-      setItems(data);
+      setItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching items:', error);
     } finally {

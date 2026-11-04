@@ -111,7 +111,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {project.metrics.map((metric, idx) => (
+              {Array.isArray(project.metrics) && project.metrics.map((metric, idx) => (
                 <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-[#EC9731] shrink-0" />
                   <span className="text-xs font-bold text-white">{metric}</span>
@@ -138,7 +138,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
             <div className="pt-3 border-t border-white/10">
               <span className="text-slate-400">Tech Stack Empleado:</span>
               <div className="flex flex-wrap gap-2 mt-2">
-                {project.techStack.map((tech, idx) => (
+                {Array.isArray(project.techStack) && project.techStack.map((tech, idx) => (
                   <span key={idx} className="px-2.5 py-1 rounded bg-[#314595]/40 border border-[#314595]/60 text-white">
                     {tech}
                   </span>

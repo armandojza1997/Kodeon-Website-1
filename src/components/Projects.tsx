@@ -145,7 +145,7 @@ export const Projects: React.FC = () => {
 
         {/* Project Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {filteredProjects.map((project, idx) => (
+          {Array.isArray(filteredProjects) && filteredProjects.map((project, idx) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 30 }}
@@ -205,10 +205,10 @@ export const Projects: React.FC = () => {
 
                 <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3 text-xs font-mono text-slate-400">
                   <div className="flex flex-wrap items-center gap-2">
-                    {project.techStack.map((tech, idx) => (
+                    {Array.isArray(project.techStack) && project.techStack.map((tech, idx) => (
                       <React.Fragment key={idx}>
                         <span>{tech}</span>
-                        {idx < project.techStack.length - 1 && <span className="text-slate-600">·</span>}
+                        {idx < (project.techStack?.length || 0) - 1 && <span className="text-slate-600">·</span>}
                       </React.Fragment>
                     ))}
                   </div>

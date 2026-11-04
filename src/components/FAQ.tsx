@@ -121,7 +121,7 @@ export const FAQ: React.FC = () => {
 
         {/* Accordion List */}
         <div className="space-y-4 max-w-3xl mx-auto">
-          {filteredFaqs.map((faq, idx) => {
+          {Array.isArray(filteredFaqs) && filteredFaqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
 
             return (

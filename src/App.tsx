@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -24,6 +24,24 @@ const sectionVariants: any = {
 export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  // Sync state with browser navigation
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    
+    window.addEventListener('popstate', handleLocationChange);
+    
+    // Check path changes every 200ms as a fallback for pushState which doesn't trigger events
+    const interval = setInterval(handleLocationChange, 200);
+    
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleOpenContact = () => {
     const contactEl = document.getElementById('contact');
@@ -37,7 +55,7 @@ export default function App() {
   };
 
   // Simple routing for /admin/login
-  const isLoginPage = window.location.pathname === '/admin/login';
+  const isLoginPage = currentPath === '/admin/login';
 
   return (
     <div className="min-h-screen bg-[#0b0e1b] text-slate-100 relative font-sans antialiased selection:bg-[#EC9731] selection:text-white">
@@ -107,7 +125,10 @@ export default function App() {
         isOpen={isAdminOpen || isLoginPage} 
         onClose={() => {
           setIsAdminOpen(false);
-          if (isLoginPage) window.history.pushState({}, '', '/');
+          if (isLoginPage) {
+            window.history.pushState({}, '', '/');
+            setCurrentPath('/'); // Immediate feedback
+          }
         }} 
       />
     </div>
