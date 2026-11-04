@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { GoogleGenAI } from '@google/genai';
+import { generateSmartRoBotAnswer } from './src/utils/roBotEngine';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,7 +55,7 @@ const appointments: Appointment[] = [
   }
 ];
 
-const ROBOT_SYSTEM_INSTRUCTION = `Eres Ro-Bot, el asistente virtual y compañero robótico del portfolio profesional "AURA" de un Desarrollador Web Senior y Diseñador Creativo.
+const ROBOT_SYSTEM_INSTRUCTION = `Eres Ro-Bot, el asistente virtual y compañero robótico del portfolio profesional "TECNOVA" de un Desarrollador Web Senior y Diseñador Creativo.
 
 Tu rol:
 1. Brindar información detallada y transparente de TODOS nuestros productos, servicios y planes.
@@ -420,11 +421,11 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     if (!process.env.GEMINI_API_KEY) {
-      console.warn('GEMINI_API_KEY no detectado. Utilizando motor de respuestas inteligente Ro-Bot local.');
-      const fallbackReply = getFallbackRoBotResponse(userText);
+      const smart = generateSmartRoBotAnswer(userText);
       return res.json({
         success: true,
-        reply: fallbackReply,
+        reply: smart.reply,
+        actionSuggestion: smart.actionSuggestion,
         source: 'local-persona'
       });
     }
@@ -462,7 +463,7 @@ app.post('/api/chat', async (req, res) => {
     });
 
     const response: any = await Promise.race([apiPromise, timeoutPromise]);
-    const replyText = response?.text || getFallbackRoBotResponse(userText);
+    const replyText = response?.text || generateSmartRoBotAnswer(userText).reply;
 
     return res.json({
       success: true,
@@ -471,10 +472,11 @@ app.post('/api/chat', async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error or timeout generating Ro-Bot response via Gemini:', error?.message || error);
-    const fallbackReply = getFallbackRoBotResponse(userText);
+    const smart = generateSmartRoBotAnswer(userText);
     return res.json({
       success: true,
-      reply: fallbackReply,
+      reply: smart.reply,
+      actionSuggestion: smart.actionSuggestion,
       source: 'local-persona-fallback'
     });
   }

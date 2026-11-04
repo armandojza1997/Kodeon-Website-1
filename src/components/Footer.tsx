@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
                 className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-white group w-fit cursor-pointer select-none"
               >
                 <span className="w-3 h-3 rounded-full bg-[#EC9731] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_12px_#EC9731]" />
-                <span>AURA</span>
+                <span>TECNOVA</span>
                 <span className="text-xs font-mono px-2 py-0.5 rounded text-[#EC9731] bg-[#314595]/30 border border-[#314595]/50 group-hover:border-[#EC9731]">
                   WEB STUDIO
                 </span>
@@ -176,7 +176,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar: Copyright, Legal & Easter Egg trigger button */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
-          <p>© {new Date().getFullYear()} AURA WEB STUDIO. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} TECNOVA WEB STUDIO. Todos los derechos reservados.</p>
 
           <div className="flex items-center gap-6">
             <button

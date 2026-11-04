@@ -59,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
             className="flex items-center gap-2 group text-xl font-extrabold tracking-tight text-white whitespace-nowrap shrink-0"
           >
             <span className="w-3 h-3 rounded-full bg-[#EC9731] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_12px_#EC9731]" />
-            <span>AURA</span>
+            <span>TECNOVA</span>
             <span className="text-xs font-mono font-medium px-2 py-0.5 rounded text-[#EC9731] bg-[#314595]/40 border border-[#314595]">
               DIGITAL
             </span>
@@ -221,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
               Iniciar un Proyecto
             </button>
             <p className="text-center text-xs text-slate-500 font-mono">
-              AURA DIGITAL STUDIO © {new Date().getFullYear()}
+              TECNOVA DIGITAL STUDIO © {new Date().getFullYear()}
             </p>
           </div>
         </div>
