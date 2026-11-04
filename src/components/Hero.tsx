@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { HeroCodeDesignBg } from './HeroCodeDesignBg';
+import { InteractiveRobot } from './InteractiveRobot';
 import { soundFX } from '../utils/soundFX';
 
 interface HeroProps {
@@ -17,30 +18,27 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
   };
 
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center pt-24 pb-16 overflow-hidden bg-[#0b0e1b]">
-      {/* Background Animated Code Lines & Web Design Drafting Environment */}
+    <section className="relative min-h-screen w-full flex items-center justify-center pt-24 sm:pt-28 pb-12 overflow-hidden bg-[#0b0e1b]">
+      {/* Clean, Minimalist Background (Subtle Grid & Ambient Code Lines) */}
       <HeroCodeDesignBg />
 
       {/* Main Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 w-full flex flex-col items-center justify-between min-h-[calc(100vh-140px)]">
-        {/* Minimalist Top Kicker */}
-        <div className="w-full flex justify-center pt-2">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#10152b] border border-white/10 shadow-sm backdrop-blur-sm">
-            <span className="w-2 h-2 rounded-full bg-[#EC9731]" />
-            <span className="text-xs font-mono font-medium tracking-widest text-slate-300 uppercase">
-              DESARROLLO WEB & EXPERIENCIAS DIGITALES
-            </span>
+      <div className="relative z-10 max-w-5xl mx-auto px-6 w-full flex flex-col items-center justify-between min-h-[calc(100vh-130px)]">
+        {/* Central Typographic Message with Interactive Robot Peeking Over */}
+        <div className="relative max-w-4xl mx-auto text-center my-auto pt-8 sm:pt-10 pb-6 flex flex-col items-center">
+          {/* 🤖 Interactive Robot Peeking with hands at the text level and head fully visible below header */}
+          <div className="relative z-20 pointer-events-auto transition-transform hover:scale-105 -mb-6 sm:-mb-8 md:-mb-10">
+            <InteractiveRobot />
           </div>
-        </div>
 
-        {/* Central Typographic Message */}
-        <div className="max-w-3xl mx-auto text-center my-auto py-10">
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08] mb-6 text-balance">
+          {/* Main Headline */}
+          <h1 className="relative z-10 text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08] mb-6 text-balance">
             Transformo ideas en{' '}
             <span className="text-[#EC9731]">experiencias digitales</span>{' '}
             extraordinarias.
           </h1>
 
+          {/* Description */}
           <p className="text-base sm:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto mb-10 text-balance">
             Diseño y desarrollo soluciones web modernas, funcionales y escalables que ayudan a marcas y negocios a destacar en el mundo digital.
           </p>
@@ -70,7 +68,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
         </div>
 
         {/* Minimalist Bottom Scroll Cue */}
-        <div className="w-full flex justify-center pb-4 pt-2">
+        <div className="w-full flex justify-center pb-2 pt-2">
           <button
             onClick={() => scrollTo('about')}
             onMouseEnter={() => soundFX.playHover()}
