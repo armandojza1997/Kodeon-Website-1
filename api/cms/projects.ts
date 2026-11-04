@@ -1,4 +1,4 @@
-import { db } from '../../src/db/index.ts';
+import { getDb } from '../../src/db/index.ts';
 import { projects } from '../../src/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
 import { checkAuth } from '../auth-util.ts';
@@ -11,6 +11,7 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
+    const db = getDb();
     if (req.method === 'GET') {
       const allProjects = await db.select().from(projects).orderBy(desc(projects.order));
       return res.json(allProjects);
@@ -32,14 +33,17 @@ export default async function handler(req: any, res: any) {
       await checkAuth(req);
       const { id } = req.query;
       if (!id) return res.status(400).json({ error: 'Missing ID' });
-      await db.delete(projects).where(eq(projects.id, parseInt(id)));
+      await db.delete(projects).where(eq(projects.id, parseInt(id as string)));
       return res.json({ success: true });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error: any) {
     console.error('Projects API error:', error);
-    const status = error.message.includes('Unauthorized') ? 401 : 500;
-    res.status(status).json({ error: error.message });
+    const status = error.message?.includes('Unauthorized') ? 401 : 500;
+    res.status(status).json({ 
+        error: error.message || 'Internal server error',
+        details: error?.message 
+    });
   }
 }

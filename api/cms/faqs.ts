@@ -1,4 +1,4 @@
-import { db } from '../../src/db/index.ts';
+import { getDb } from '../../src/db/index.ts';
 import { faqs } from '../../src/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
 import { checkAuth } from '../auth-util.ts';
@@ -11,6 +11,7 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
+    const db = getDb();
     if (req.method === 'GET') {
       const allFaqs = await db.select().from(faqs).orderBy(desc(faqs.order));
       return res.json(allFaqs);
@@ -30,7 +31,11 @@ export default async function handler(req: any, res: any) {
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error: any) {
-    const status = error.message.includes('Unauthorized') ? 401 : 500;
-    res.status(status).json({ error: error.message });
+    console.error('FAQs API error:', error);
+    const status = error.message?.includes('Unauthorized') ? 401 : 500;
+    res.status(status).json({ 
+        error: error.message || 'Internal server error',
+        details: error?.message 
+    });
   }
 }

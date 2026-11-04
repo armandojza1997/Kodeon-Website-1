@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { GoogleGenAI } from '@google/genai';
 import { generateSmartRoBotAnswer } from './src/utils/roBotEngine';
-import { db } from './src/db/index.ts';
+import { getDb } from './src/db/index.ts';
 import { users, projects, services, faqs } from './src/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
 import { requireAuth, AuthRequest } from './src/middleware/auth.ts';
@@ -523,6 +523,7 @@ app.post('/api/cms/login', async (req, res) => {
   const { username, password } = req.body;
   
   try {
+    const db = getDb();
     const foundUsers = await db.select().from(users).where(eq(users.username, username)).limit(1);
     const user = foundUsers[0];
 
@@ -541,10 +542,28 @@ app.post('/api/cms/login', async (req, res) => {
   }
 });
 
+// Sync user on login
+app.post('/api/cms/sync-user', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { uid, email } = req.user;
+    const result = await getDb().insert(users).values({
+      uid,
+      email: email || '',
+    }).onConflictDoUpdate({
+      target: users.uid,
+      set: { email: email || '' }
+    }).returning();
+    res.json({ success: true, user: result[0] });
+  } catch (error) {
+    console.error('Error syncing user:', error);
+    res.status(500).json({ error: 'Failed to sync user' });
+  }
+});
+
 // Projects
 app.get('/api/cms/projects', async (_req, res) => {
   try {
-    const allProjects = await db.select().from(projects).orderBy(desc(projects.order));
+    const allProjects = await getDb().select().from(projects).orderBy(desc(projects.order));
     res.json(allProjects);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch projects' });
@@ -555,10 +574,10 @@ app.post('/api/cms/projects', requireAuth, async (req, res) => {
   try {
     const { id, ...data } = req.body;
     if (id) {
-      const updated = await db.update(projects).set(data).where(eq(projects.id, id)).returning();
+      const updated = await getDb().update(projects).set(data).where(eq(projects.id, id)).returning();
       res.json(updated[0]);
     } else {
-      const inserted = await db.insert(projects).values(data).returning();
+      const inserted = await getDb().insert(projects).values(data).returning();
       res.json(inserted[0]);
     }
   } catch (error) {
@@ -568,7 +587,7 @@ app.post('/api/cms/projects', requireAuth, async (req, res) => {
 
 app.delete('/api/cms/projects/:id', requireAuth, async (req, res) => {
   try {
-    await db.delete(projects).where(eq(projects.id, parseInt(req.params.id)));
+    await getDb().delete(projects).where(eq(projects.id, parseInt(req.params.id)));
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete project' });
@@ -578,7 +597,7 @@ app.delete('/api/cms/projects/:id', requireAuth, async (req, res) => {
 // Services
 app.get('/api/cms/services', async (_req, res) => {
   try {
-    const allServices = await db.select().from(services).orderBy(desc(services.order));
+    const allServices = await getDb().select().from(services).orderBy(desc(services.order));
     res.json(allServices);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch services' });
@@ -589,10 +608,10 @@ app.post('/api/cms/services', requireAuth, async (req, res) => {
   try {
     const { id, ...data } = req.body;
     if (id) {
-      const updated = await db.update(services).set(data).where(eq(services.id, id)).returning();
+      const updated = await getDb().update(services).set(data).where(eq(services.id, id)).returning();
       res.json(updated[0]);
     } else {
-      const inserted = await db.insert(services).values(data).returning();
+      const inserted = await getDb().insert(services).values(data).returning();
       res.json(inserted[0]);
     }
   } catch (error) {
@@ -603,7 +622,7 @@ app.post('/api/cms/services', requireAuth, async (req, res) => {
 // FAQs
 app.get('/api/cms/faqs', async (_req, res) => {
   try {
-    const allFaqs = await db.select().from(faqs).orderBy(desc(faqs.order));
+    const allFaqs = await getDb().select().from(faqs).orderBy(desc(faqs.order));
     res.json(allFaqs);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch faqs' });
@@ -614,10 +633,10 @@ app.post('/api/cms/faqs', requireAuth, async (req, res) => {
   try {
     const { id, ...data } = req.body;
     if (id) {
-      const updated = await db.update(faqs).set(data).where(eq(faqs.id, id)).returning();
+      const updated = await getDb().update(faqs).set(data).where(eq(faqs.id, id)).returning();
       res.json(updated[0]);
     } else {
-      const inserted = await db.insert(faqs).values(data).returning();
+      const inserted = await getDb().insert(faqs).values(data).returning();
       res.json(inserted[0]);
     }
   } catch (error) {

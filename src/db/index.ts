@@ -8,22 +8,48 @@ declare global {
 }
 
 export const createPool = () => {
-  if (!global._postgresPool) {
-    global._postgresPool = new Pool({
-      host: process.env.SQL_HOST,
-      user: process.env.SQL_USER,
-      password: process.env.SQL_PASSWORD,
-      database: process.env.SQL_DB_NAME,
-      max: 10,
-      connectionTimeoutMillis: 15000,
-    });
+  const host = process.env.SQL_HOST;
+  const user = process.env.SQL_USER;
+  const password = process.env.SQL_PASSWORD;
+  const database = process.env.SQL_DB_NAME;
 
-    global._postgresPool.on('error', (err: any) => {
-      console.error('Unexpected error on idle SQL pool client:', err);
-    });
+  if (!host || !user || !database) {
+    console.warn("Missing DB environment variables. SQL_HOST, SQL_USER, or SQL_DB_NAME is undefined.");
+  }
+
+  const config = {
+    host,
+    user,
+    password,
+    database,
+    max: 1, 
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 10000,
+  };
+
+  if (!global._postgresPool) {
+    try {
+      global._postgresPool = new Pool(config);
+      global._postgresPool.on('error', (err: any) => {
+        console.error('Unexpected error on idle SQL pool client:', err);
+      });
+    } catch (e) {
+      console.error('Error creating PG Pool:', e);
+      throw e;
+    }
   }
   return global._postgresPool;
 };
 
-const pool = createPool();
-export const db = drizzle(pool, { schema });
+export const getDb = () => {
+  try {
+    const pool = createPool();
+    return drizzle(pool, { schema });
+  } catch (error) {
+    console.error('getDb failed:', error);
+    throw error;
+  }
+};
+
+// Default export for simplicity in some contexts
+export const db = getDb();

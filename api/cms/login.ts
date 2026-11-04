@@ -1,4 +1,4 @@
-import { db } from '../../src/db/index.ts';
+import { getDb } from '../../src/db/index.ts';
 import { users } from '../../src/db/schema.ts';
 import { eq } from 'drizzle-orm';
 
@@ -16,6 +16,7 @@ export default async function handler(req: any, res: any) {
   const { username, password } = req.body;
   
   try {
+    const db = getDb();
     const foundUsers = await db.select().from(users).where(eq(users.username, username)).limit(1);
     const user = foundUsers[0];
 
@@ -28,8 +29,12 @@ export default async function handler(req: any, res: any) {
     } else {
       res.status(401).json({ success: false, error: 'Credenciales inválidas' });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Error en el servidor durante el login' });
+    res.status(500).json({ 
+      success: false, 
+      error: 'Error en el servidor durante el login',
+      details: error?.message || String(error)
+    });
   }
 }

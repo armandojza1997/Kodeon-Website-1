@@ -1,4 +1,4 @@
-import { db } from '../../src/db/index.ts';
+import { getDb } from '../../src/db/index.ts';
 import { users } from '../../src/db/schema.ts';
 import { checkAuth } from '../auth-util.ts';
 
@@ -11,6 +11,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
+    const db = getDb();
     const decodedToken: any = await checkAuth(req);
     const { uid, email } = decodedToken;
     
@@ -24,7 +25,11 @@ export default async function handler(req: any, res: any) {
     
     res.json({ success: true, user: result[0] });
   } catch (error: any) {
-    const status = error.message.includes('Unauthorized') ? 401 : 500;
-    res.status(status).json({ error: error.message });
+    console.error('Sync user error:', error);
+    const status = error.message?.includes('Unauthorized') ? 401 : 500;
+    res.status(status).json({ 
+        error: error.message || 'Internal server error',
+        details: error?.message 
+    });
   }
 }
