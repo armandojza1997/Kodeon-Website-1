@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Plus, Trash2, Edit3, Settings, Database, Layout, MessageSquare, LogIn, LogOut, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { auth, googleAuthProvider } from '../lib/firebase.ts';
-import { signInWithPopup, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { X, Save, Plus, Trash2, Edit3, Settings, Database, Layout, MessageSquare, LogIn, LogOut, Loader2, CheckCircle2, AlertCircle, Key, User as UserIcon } from 'lucide-react';
 import { soundFX } from '../utils/soundFX';
 
 interface AdminCMSProps {
@@ -11,22 +9,26 @@ interface AdminCMSProps {
 }
 
 export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'faq'>('projects');
   const [items, setItems] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      if (currentUser) {
-        syncUser(currentUser);
+    // Restore session if exists
+    const savedSession = sessionStorage.getItem('codix_admin_session');
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        setUser(parsed.user);
+      } catch (e) {
+        sessionStorage.removeItem('codix_admin_session');
       }
-    });
-    return () => unsubscribe();
+    }
   }, []);
 
   useEffect(() => {
@@ -34,21 +36,6 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
       fetchItems();
     }
   }, [user, isOpen, activeTab]);
-
-  const syncUser = async (currentUser: User) => {
-    try {
-      const token = await currentUser.getIdToken();
-      await fetch('/api/cms/sync-user', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-    } catch (error) {
-      console.error('Error syncing user:', error);
-    }
-  };
 
   const fetchItems = async () => {
     setLoading(true);
@@ -64,27 +51,49 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus(null);
+    
     try {
       soundFX.playClick();
-      await signInWithPopup(auth, googleAuthProvider);
+      const res = await fetch('/api/cms/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginUsername, password: loginPassword })
+      });
+      
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.user);
+        sessionStorage.setItem('codix_admin_session', JSON.stringify({ token: data.token, user: data.user }));
+        soundFX.playSuccess();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Credenciales incorrectas' });
+      }
     } catch (error) {
-      console.error('Login failed:', error);
+      setStatus({ type: 'error', message: 'Error de conexión' });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      soundFX.playClick();
-      await signOut(auth);
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+  const handleLogout = () => {
+    soundFX.playClick();
+    setUser(null);
+    sessionStorage.removeItem('codix_admin_session');
+  };
+
+  const getToken = () => {
+    const session = sessionStorage.getItem('codix_admin_session');
+    if (!session) return null;
+    return JSON.parse(session).token;
   };
 
   const handleAddItem = () => {
     soundFX.playClick();
-    const newItem = activeTab === 'projects' ? { name: 'Nuevo Proyecto', category: 'General', category_key: 'general', description: '', image: '' } : 
+    const newItem = activeTab === 'projects' ? { name: 'Nuevo Proyecto', category: 'General', category_key: 'general', description: '', image: '', published: true } : 
                     activeTab === 'services' ? { title: 'Nuevo Servicio', description: '', icon: 'Settings' } :
                     { question: 'Nueva Pregunta', answer: '', category: 'General' };
     
@@ -95,7 +104,7 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
     if (!user) return;
     setIsSaving(true);
     try {
-      const token = await user.getIdToken();
+      const token = getToken();
       const res = await fetch(`/api/cms/${activeTab}`, {
         method: 'POST',
         headers: {
@@ -125,7 +134,7 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
     if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
     
     try {
-      const token = await user.getIdToken();
+      const token = getToken();
       await fetch(`/api/cms/${activeTab}/${id}`, {
         method: 'DELETE',
         headers: {
@@ -156,17 +165,17 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
               <Settings className="w-5 h-5 text-[#EC9731]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Códix CMS <span className="text-[10px] font-mono bg-emerald-500/20 px-2 py-0.5 rounded ml-2 text-emerald-400 uppercase">Live SQL</span></h2>
-              <p className="text-xs text-slate-400 font-mono">Gestión de contenido en tiempo real</p>
+              <h2 className="text-xl font-bold text-white">Códix CMS <span className="text-[10px] font-mono bg-emerald-500/20 px-2 py-0.5 rounded ml-2 text-emerald-400 uppercase">Secure SQL</span></h2>
+              <p className="text-xs text-slate-400 font-mono">Panel de Control Maestro</p>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             {user && (
               <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
-                <img src={user.photoURL || ''} alt="" className="w-6 h-6 rounded-full border border-[#EC9731]/30" />
-                <span className="text-[10px] font-mono text-slate-300">{user.email}</span>
-                <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 transition-colors">
+                <UserIcon className="w-4 h-4 text-[#EC9731]" />
+                <span className="text-[10px] font-mono text-slate-300 uppercase">{user.username}</span>
+                <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 transition-colors ml-2 border-l border-white/10 pl-2">
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -181,21 +190,53 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
         </div>
 
         {!user ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-            <div className="w-20 h-20 rounded-3xl bg-[#314595]/20 border border-[#314595]/40 flex items-center justify-center mb-8">
-              <LogIn className="w-10 h-10 text-[#EC9731]" />
+          <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-[radial-gradient(circle_at_center,_#161d3a_0%,_#0b0e1b_100%)]">
+            <div className="w-20 h-20 rounded-3xl bg-[#314595]/20 border border-[#314595]/40 flex items-center justify-center mb-8 shadow-2xl shadow-[#314595]/20">
+              <Key className="w-10 h-10 text-[#EC9731]" />
             </div>
-            <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight">Acceso Restringido</h3>
-            <p className="text-slate-400 max-w-md mb-10 leading-relaxed">
-              Inicia sesión con tu cuenta de administrador autorizada para gestionar los proyectos, servicios y contenido del sitio.
+            <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight">Códix Auth Gate</h3>
+            <p className="text-slate-400 max-w-md mb-10 leading-relaxed text-sm">
+              Introduce tus credenciales de administrador para acceder a la gestión centralizada de contenidos.
             </p>
-            <button 
-              onClick={handleLogin}
-              className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-white text-[#0b0e1b] font-bold text-sm hover:bg-[#EC9731] hover:text-white transition-all shadow-xl shadow-white/5"
-            >
-              <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" />
-              Acceder con Google
-            </button>
+            
+            <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4">
+              <div className="relative">
+                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input 
+                  type="text" 
+                  placeholder="Nombre de usuario" 
+                  value={loginUsername}
+                  onChange={(e) => setLoginUsername(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-600 focus:border-[#EC9731] outline-none transition-all"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input 
+                  type="password" 
+                  placeholder="Contraseña" 
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-600 focus:border-[#EC9731] outline-none transition-all"
+                  required
+                />
+              </div>
+              
+              {status?.type === 'error' && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono">
+                  {status.message}
+                </motion.div>
+              )}
+
+              <button 
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 rounded-2xl bg-[#EC9731] text-white font-bold text-sm hover:bg-[#d88a2c] transition-all shadow-xl shadow-[#EC9731]/20 flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Acceder al Sistema'}
+              </button>
+            </form>
           </div>
         ) : (
           <div className="flex flex-1 overflow-hidden">
@@ -227,9 +268,9 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
                 <div className="p-4 rounded-2xl bg-[#EC9731]/5 border border-[#EC9731]/20 text-[9px] text-slate-400 font-mono leading-relaxed">
                   <div className="flex items-center gap-2 text-[#EC9731] mb-2">
                     <Database className="w-3 h-3" />
-                    <span>PostgreSQL Active</span>
+                    <span>PostgreSQL Cluster Active</span>
                   </div>
-                  Sincronización en tiempo real habilitada. Todos los cambios se reflejan instantáneamente en el frontend.
+                  Modo Maestro habilitado. Los cambios realizados afectarán directamente a la base de datos de producción.
                 </div>
               </div>
             </div>
@@ -239,14 +280,14 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h3 className="text-2xl font-bold text-white capitalize">{activeTab}</h3>
-                  <p className="text-xs text-slate-500 font-mono mt-1">Total: {items.length} elementos</p>
+                  <p className="text-xs text-slate-500 font-mono mt-1">Sincronización SQL habilitada</p>
                 </div>
                 <button 
                   onClick={handleAddItem}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#314595] hover:bg-[#223488] border border-[#314595] text-xs font-bold text-white transition-all shadow-lg"
                 >
                   <Plus className="w-4 h-4 text-[#EC9731]" />
-                  Nuevo {activeTab === 'projects' ? 'Proyecto' : activeTab === 'services' ? 'Servicio' : 'FAQ'}
+                  Añadir {activeTab === 'projects' ? 'Proyecto' : activeTab === 'services' ? 'Servicio' : 'FAQ'}
                 </button>
               </div>
 
@@ -315,18 +356,30 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
                               className="w-full bg-[#161d3a] border border-white/5 rounded-xl p-3 text-xs text-slate-300 outline-none focus:border-[#EC9731]/40"
                             />
                             <div className="space-y-2">
+                                <input 
+                                    type="text"
+                                    placeholder={activeTab === 'projects' ? "Categoría" : activeTab === 'services' ? "Rango de precio" : "Categoría"}
+                                    value={activeTab === 'projects' ? item.category : activeTab === 'services' ? item.price_range : item.category}
+                                    onChange={(e) => {
+                                      const newItems = [...items];
+                                      if (activeTab === 'projects') newItems[idx].category = e.target.value;
+                                      else if (activeTab === 'services') newItems[idx].price_range = e.target.value;
+                                      else newItems[idx].category = e.target.value;
+                                      setItems(newItems);
+                                    }}
+                                    className="w-full bg-[#161d3a] border border-white/5 rounded-xl p-3 text-xs text-slate-300 outline-none focus:border-[#EC9731]/40"
+                                />
                               <input 
                                 type="text"
-                                placeholder={activeTab === 'projects' ? "URL de imagen" : activeTab === 'services' ? "Icono (lucide name)" : "Categoría"}
-                                value={activeTab === 'projects' ? item.image : activeTab === 'services' ? item.icon : item.category}
+                                placeholder={activeTab === 'projects' ? "URL de imagen" : activeTab === 'services' ? "Icono (lucide name)" : ""}
+                                value={activeTab === 'projects' ? item.image : activeTab === 'services' ? item.icon : ''}
                                 onChange={(e) => {
                                   const newItems = [...items];
                                   if (activeTab === 'projects') newItems[idx].image = e.target.value;
                                   else if (activeTab === 'services') newItems[idx].icon = e.target.value;
-                                  else newItems[idx].category = e.target.value;
                                   setItems(newItems);
                                 }}
-                                className="w-full bg-[#161d3a] border border-white/5 rounded-xl p-3 text-xs text-slate-300 outline-none focus:border-[#EC9731]/40"
+                                className={`w-full bg-[#161d3a] border border-white/5 rounded-xl p-3 text-xs text-slate-300 outline-none focus:border-[#EC9731]/40 ${activeTab === 'faq' ? 'hidden' : ''}`}
                               />
                             </div>
                           </div>
@@ -356,9 +409,9 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
         </AnimatePresence>
 
         <div className="px-8 py-6 border-t border-white/10 bg-[#0b0e1b] flex items-center justify-between">
-          <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Códix SQL Engine v2.0 • Data Center: {auth.app.options.projectId}</p>
+          <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Códix SQL Engine v2.5 • Auth: Database Managed</p>
           <div className="flex items-center gap-4">
-             <span className="text-[10px] font-mono text-slate-600">Status: {user ? 'Authenticated' : 'Waiting'}</span>
+             <span className="text-[10px] font-mono text-slate-600">Status: {user ? 'Master Authenticated' : 'Locked'}</span>
           </div>
         </div>
       </motion.div>

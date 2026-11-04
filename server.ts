@@ -487,23 +487,57 @@ app.post('/api/chat', async (req, res) => {
 });
 
 
-// --- CMS API ROUTES ---
+// --- CMS AUTH & API ROUTES ---
 
-// Sync user on login
-app.post('/api/cms/sync-user', requireAuth, async (req: AuthRequest, res) => {
+// Simple session token for custom admin (for demo/specific requirement)
+const ADMIN_SESSION_TOKEN = 'codix-master-access-2026';
+
+// Auth Middleware (Updated)
+export const requireAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: Missing token' });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+  
+  // Check for custom admin token first
+  if (token === ADMIN_SESSION_TOKEN) {
+    req.user = { uid: 'admin-manual', email: 'admin@codix.studio', role: 'admin' };
+    return next();
+  }
+
+  // Fallback to Firebase
   try {
-    const { uid, email } = req.user;
-    const result = await db.insert(users).values({
-      uid,
-      email: email || '',
-    }).onConflictDoUpdate({
-      target: users.uid,
-      set: { email: email || '' }
-    }).returning();
-    res.json({ success: true, user: result[0] });
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    req.user = decodedToken;
+    next();
   } catch (error) {
-    console.error('Error syncing user:', error);
-    res.status(500).json({ error: 'Failed to sync user' });
+    console.error('Error verifying Firebase ID token:', error);
+    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+  }
+};
+
+// Custom Login Route
+app.post('/api/cms/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  try {
+    const foundUsers = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    const user = foundUsers[0];
+
+    if (user && user.password === password) {
+      res.json({ 
+        success: true, 
+        token: ADMIN_SESSION_TOKEN,
+        user: { username: user.username, role: user.role }
+      });
+    } else {
+      res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Error en el servidor durante el login' });
   }
 });
 

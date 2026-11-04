@@ -3,8 +3,10 @@ import { relations } from 'drizzle-orm';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  uid: text('uid').notNull().unique(), // Firebase UID
-  email: text('email').notNull(),
+  uid: text('uid').unique(), // Firebase UID (optional for manual users)
+  email: text('email'),
+  username: text('username').unique(),
+  password: text('password'),
   role: text('role').notNull().default('admin'),
   createdAt: timestamp('created_at').defaultNow(),
 });
