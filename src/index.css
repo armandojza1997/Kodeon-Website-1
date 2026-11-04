@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --color-brand-blue: #314595;
+    --color-brand-deep: #223488;
+    --color-brand-orange: #EC9731;
+    --color-bg-dark: #0b0e1b;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #0b0e1b;
+    color: #f1f5f9;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b0e1b;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #223488;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #EC9731;
+  }
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Minimalist Solid Panels */
+.glass-panel {
+  background: #10152b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: #161d3a;
+  border-color: rgba(236, 151, 49, 0.4);
+}
+
+/* Animations for Code Lines & Web Design Drafting Background */
+@keyframes code-stream-up {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+@keyframes code-stream-down {
+  0% {
+    transform: translate3d(0, -50%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes draw-bezier {
+  0% {
+    stroke-dashoffset: 600;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -600;
+  }
+}
+
+@keyframes vector-handle-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+.animate-code-scroll {
+  animation: code-stream-up 35s linear infinite;
+  will-change: transform;
+}
+
+.animate-code-scroll-slow {
+  animation: code-stream-down 45s linear infinite;
+  will-change: transform;
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1s steps(2, start) infinite;
+}
+
+.animate-draw-bezier {
+  stroke-dasharray: 600;
+  animation: draw-bezier 16s ease-in-out infinite;
+}
+
+.animate-handle-float {
+  animation: vector-handle-float 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-code-scroll,
+  .animate-code-scroll-slow,
+  .animate-cursor-blink,
+  .animate-draw-bezier,
+  .animate-handle-float {
+    animation: none !important;
+  }
+}
