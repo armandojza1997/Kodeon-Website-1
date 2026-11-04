@@ -1,14 +1,15 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, MessageSquare } from 'lucide-react';
 import { HeroCodeDesignBg } from './HeroCodeDesignBg';
 import { InteractiveRobot } from './InteractiveRobot';
 import { soundFX } from '../utils/soundFX';
 
 interface HeroProps {
   onOpenContact: () => void;
+  onOpenChat?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenContact, onOpenChat }) => {
   const scrollTo = (id: string) => {
     soundFX.playClick();
     const element = document.getElementById(id);
@@ -26,9 +27,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
       <div className="relative z-10 max-w-5xl mx-auto px-6 w-full flex flex-col items-center justify-between min-h-[calc(100vh-130px)]">
         {/* Central Typographic Message with Interactive Robot Peeking Over */}
         <div className="relative max-w-4xl mx-auto text-center my-auto pt-8 sm:pt-10 pb-6 flex flex-col items-center">
-          {/* 🤖 Interactive Robot Peeking with hands at the text level and head fully visible below header */}
+          {/* 🤖 Interactive Robot Ro-Bot Peeking with hands at the text level */}
           <div className="relative z-20 pointer-events-auto transition-transform hover:scale-105 -mb-6 sm:-mb-8 md:-mb-10">
-            <InteractiveRobot />
+            <InteractiveRobot onOpenChat={onOpenChat} />
           </div>
 
           {/* Main Headline */}
@@ -64,6 +65,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             >
               <span>Hablemos de tu proyecto</span>
             </button>
+
+            {onOpenChat && (
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  onOpenChat();
+                }}
+                onMouseEnter={() => soundFX.playHover()}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-[#10152b] hover:bg-[#161d3a] border border-[#EC9731]/40 hover:border-[#EC9731] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm group"
+              >
+                <MessageSquare className="w-4 h-4 text-[#EC9731] group-hover:scale-110 transition-transform" />
+                <span>Hablar con Ro-Bot</span>
+              </button>
+            )}
           </div>
         </div>
 

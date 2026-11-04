@@ -85,6 +85,33 @@ class SoundManager {
       // Audio error ignore
     }
   }
+
+  public playSuccess() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+      osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.07); // E5
+      osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.14); // G5
+
+      gain.gain.setValueAtTime(0.025, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.28);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.28);
+    } catch {
+      // Audio error ignore
+    }
+  }
 }
 
 export const soundFX = new SoundManager();

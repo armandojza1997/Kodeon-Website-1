@@ -3,11 +3,12 @@ import { soundFX } from '../utils/soundFX';
 
 interface InteractiveRobotProps {
   className?: string;
+  onOpenChat?: () => void;
 }
 
 type GestureType = 'neutral' | 'happy' | 'thinking' | 'wink' | 'curious' | 'nodding';
 
-export const InteractiveRobot: React.FC<InteractiveRobotProps> = ({ className = '' }) => {
+export const InteractiveRobot: React.FC<InteractiveRobotProps> = ({ className = '', onOpenChat }) => {
   const robotRef = useRef<HTMLDivElement | null>(null);
 
   // Mouse position state relative to the robot center (-1 to 1)
@@ -17,7 +18,7 @@ export const InteractiveRobot: React.FC<InteractiveRobotProps> = ({ className = 
   // Robot expression and animation states
   const [blink, setBlink] = useState(false);
   const [gesture, setGesture] = useState<GestureType>('neutral');
-  const [speechBubble, setSpeechBubble] = useState<string | null>(null);
+  const [speechBubble, setSpeechBubble] = useState<string | null>('¡Hola! Soy Ro-Bot 🤖');
   const [isWaving, setIsWaving] = useState(false);
 
   // Render values for smooth transforms
@@ -107,6 +108,14 @@ export const InteractiveRobot: React.FC<InteractiveRobotProps> = ({ className = 
     return () => clearTimeout(blinkTimeout);
   }, []);
 
+  // Hide initial greeting bubble after 4 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSpeechBubble(null);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Autonomous gesture engine
   useEffect(() => {
     let gestureInterval: NodeJS.Timeout;
@@ -131,12 +140,16 @@ export const InteractiveRobot: React.FC<InteractiveRobotProps> = ({ className = 
     return () => clearInterval(gestureInterval);
   }, []);
 
-  // Direct Click interaction
+  // Direct Click interaction -> Opens Chatbot & waves
   const handleRobotClick = () => {
     soundFX.playClick();
     setGesture('happy');
     setIsWaving(true);
-    setSpeechBubble('¡Hola! Listo para construir');
+    setSpeechBubble('¡Abriendo chat con Ro-Bot!');
+
+    if (onOpenChat) {
+      onOpenChat();
+    }
 
     setTimeout(() => {
       setGesture('neutral');
@@ -154,14 +167,21 @@ export const InteractiveRobot: React.FC<InteractiveRobotProps> = ({ className = 
     <div
       ref={robotRef}
       onClick={handleRobotClick}
-      title="AURA Bot: Haz clic para interactuar"
+      title="Ro-Bot: ¡Haz clic para chatear conmigo!"
       className={`relative select-none pointer-events-auto cursor-pointer group w-[260px] sm:w-[320px] md:w-[360px] h-[225px] sm:h-[280px] md:h-[315px] ${className}`}
     >
       {/* Speech / Reaction Bubble */}
-      {speechBubble && (
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-[#10152b] border border-[#EC9731] shadow-2xl text-white font-mono text-xs whitespace-nowrap animate-bounce flex items-center gap-2">
+      {speechBubble ? (
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 px-3.5 py-1.5 rounded-full bg-[#10152b] border border-[#EC9731] shadow-2xl text-white font-mono text-xs whitespace-nowrap animate-bounce flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#EC9731] animate-ping" />
           <span>{speechBubble}</span>
+        </div>
+      ) : (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#10152b]/90 border border-white/15 text-slate-300 text-[11px] font-mono group-hover:border-[#EC9731] group-hover:text-white transition-colors shadow-lg">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#EC9731] animate-pulse" />
+            Ro-Bot • Clic para chatear
+          </span>
         </div>
       )}
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
@@ -9,13 +9,20 @@ import { Process } from './components/Process';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
+import { RoBotChat } from './components/RoBotChat';
 
 export default function App() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   const handleOpenContact = () => {
     const contactEl = document.getElementById('contact');
     if (contactEl) {
       contactEl.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleOpenChat = () => {
+    setIsChatOpen(true);
   };
 
   return (
@@ -24,12 +31,12 @@ export default function App() {
       <CustomCursor />
 
       {/* Top Bar Navigation */}
-      <Navbar onOpenContact={handleOpenContact} />
+      <Navbar onOpenContact={handleOpenContact} onOpenChat={handleOpenChat} />
 
       {/* Main Page Layout Sections */}
       <main>
-        {/* Section 1: Hero with Motion Graphics Background */}
-        <Hero onOpenContact={handleOpenContact} />
+        {/* Section 1: Hero with Motion Graphics Background & Ro-Bot Companion */}
+        <Hero onOpenContact={handleOpenContact} onOpenChat={handleOpenChat} />
 
         {/* Section 2: Sobre Mí */}
         <About />
@@ -52,6 +59,14 @@ export default function App() {
 
       {/* Footer */}
       <Footer />
+
+      {/* 🤖 Ro-Bot Floating AI Chatbot */}
+      <RoBotChat
+        isOpen={isChatOpen}
+        onOpen={() => setIsChatOpen(true)}
+        onClose={() => setIsChatOpen(false)}
+      />
     </div>
   );
 }
+

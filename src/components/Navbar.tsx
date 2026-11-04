@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, ArrowUpRight, Bot } from 'lucide-react';
 import { soundFX } from '../utils/soundFX';
 
 interface NavbarProps {
   onOpenContact: () => void;
+  onOpenChat?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(soundFX.getMuted());
@@ -103,8 +104,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             </button>
           </nav>
 
-          {/* Zone 3: 1 primary action & sound toggle */}
-          <div className="flex items-center gap-4 shrink-0">
+          {/* Zone 3: 1 primary action, Ro-Bot quick chat & sound toggle */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {onOpenChat && (
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  onOpenChat();
+                }}
+                aria-label="Abrir chat con Ro-Bot"
+                title="Ro-Bot • Asistente IA"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#10152b] hover:bg-[#161d3a] border border-[#EC9731]/40 hover:border-[#EC9731] text-xs font-mono text-slate-200 transition-all cursor-pointer shadow-sm group"
+              >
+                <Bot className="w-3.5 h-3.5 text-[#EC9731] group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline font-medium">Ro-Bot</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              </button>
+            )}
+
             <button
               onClick={toggleSound}
               aria-label={isMuted ? 'Activar sonido FX' : 'Silenciar sonido FX'}
@@ -180,12 +197,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             </button>
           </nav>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            {onOpenChat && (
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  setMobileMenuOpen(false);
+                  onOpenChat();
+                }}
+                className="w-full py-3 text-center text-xs font-mono uppercase tracking-wider text-white bg-[#10152b] hover:bg-[#161d3a] border border-[#EC9731]/70 rounded-full flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              >
+                <Bot className="w-4 h-4 text-[#EC9731]" />
+                <span>Chatear con Ro-Bot (IA)</span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 handleNavClick('contact');
               }}
-              className="w-full py-3.5 text-center text-xs font-bold uppercase tracking-wider text-white bg-[#EC9731] rounded-full shadow-lg"
+              className="w-full py-3.5 text-center text-xs font-bold uppercase tracking-wider text-white bg-[#EC9731] hover:bg-[#d68525] rounded-full shadow-lg cursor-pointer"
             >
               Iniciar un Proyecto
             </button>
