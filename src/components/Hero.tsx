@@ -1,6 +1,5 @@
 import React from 'react';
 import { ChevronRight, MessageSquare } from 'lucide-react';
-import { HeroCodeDesignBg } from './HeroCodeDesignBg';
 import { InteractiveRobot } from './InteractiveRobot';
 import { soundFX } from '../utils/soundFX';
 
@@ -20,8 +19,18 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact, onOpenChat }) => {
 
   return (
     <section className="relative min-h-screen w-full flex items-center justify-center pt-24 sm:pt-28 pb-12 overflow-hidden bg-[#0b0e1b]">
-      {/* Clean, Minimalist Background (Subtle Grid & Ambient Code Lines) */}
-      <HeroCodeDesignBg />
+      {/* Hero Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      >
+        <source src="/hero-video.mp4" type="video/mp4" />
+        Tu navegador no soporta videos.
+      </video>
+      <div className="absolute inset-0 bg-[#0b0e1b]/70 z-0" />
 
       {/* Main Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 w-full flex flex-col items-center justify-between min-h-[calc(100vh-130px)]">
@@ -34,7 +43,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact, onOpenChat }) => {
 
           {/* Main Headline */}
           <h1 className="relative z-10 text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08] mb-6 text-balance">
-            Transformo ideas en{' '}
+            Transformamos ideas en{' '}
             <span className="text-[#EC9731]">experiencias digitales</span>{' '}
             extraordinarias.
           </h1>

@@ -239,7 +239,7 @@ No utilizamos plantillas genéricas ni constructores visuales pesados que ralent
   // 10. WordPress vs Código a medida
   if (q.includes('wordpress') || q.includes('elementor') || q.includes('wix') || q.includes('shopify') || q.includes('plantilla')) {
     return {
-      reply: `En TECNOVA nos especializamos en **desarrollo moderno a medida con React, TypeScript y Next.js**:
+      reply: `En Códix nos especializamos en **desarrollo moderno a medida con React, TypeScript y Next.js**:
 • **Velocidad incomparable:** Las plantillas de WordPress y plugins suelen tardar de 4 a 8 segundos en cargar; nuestras webs a medida cargan en menos de 0.8 segundos.
 • **Seguridad blindada:** Sin plugins vulnerables ni exploits frecuentes de CMS tradicionales.
 • **Diseño 100% exclusivo:** Tu marca lucirá única y sofisticada, sin parecer una plantilla prehecha que usan miles de otros negocios.
@@ -287,7 +287,7 @@ Puedes hacer clic en **"Ver Proyectos"** para desplazarte a la galería completa
   // 13. Saludos cordiales o preguntas abiertas
   if (q.includes('hola') || q.includes('buenos dias') || q.includes('buenas tardes') || q.includes('que tal') || q.includes('qué tal')) {
     return {
-      reply: `¡Hola! *beep boop* 🤖 Soy **Ro-Bot**, tu asistente cibernético en el portfolio de TECNOVA.
+      reply: `¡Hola! *beep boop* 🤖 Soy **Ro-Bot**, tu asistente cibernético en el portfolio de Códix.
 
 Estoy aquí para responder cualquier pregunta sobre:
 1. **Nuestros 6 servicios de desarrollo web y diseño UI/UX** con presupuestos y plazos.
@@ -302,7 +302,7 @@ Estoy aquí para responder cualquier pregunta sobre:
 
   // 14. Fallback inteligente y contextual que responde la consulta
   return {
-    reply: `Entiendo tu consulta sobre "${userQuery.replace(/[<>{}]/g, '')}". En TECNOVA diseñamos y desarrollamos soluciones digitales a medida (Sitios Web, Aplicaciones SaaS, E-commerce y Diseño UI/UX) priorizando código limpio, alto rendimiento y una estética minimalista premium.
+    reply: `Entiendo tu consulta sobre "${userQuery.replace(/[<>{}]/g, '')}". En Códix diseñamos y desarrollamos soluciones digitales a medida (Sitios Web, Aplicaciones SaaS, E-commerce y Diseño UI/UX) priorizando código limpio, alto rendimiento y una estética minimalista premium.
 
 ¿Te gustaría que evaluemos tu requerimiento específico en una **videollamada de 30 minutos** sin costo, o prefieres que te comparta una estimación de inversión y plazos?`,
     actionSuggestion: 'booking'

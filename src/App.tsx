@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
@@ -6,10 +7,18 @@ import { Services } from './components/Services';
 import { TechStack } from './components/TechStack';
 import { Projects } from './components/Projects';
 import { Process } from './components/Process';
+import { Testimonials } from './components/Testimonials';
+import { FAQ } from './components/FAQ';
+import { Insights } from './components/Insights';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
 import { RoBotChat } from './components/RoBotChat';
+
+const sectionVariants: any = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeInOut" } }
+};
 
 export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -38,23 +47,41 @@ export default function App() {
         {/* Section 1: Hero with Motion Graphics Background & Ro-Bot Companion */}
         <Hero onOpenContact={handleOpenContact} onOpenChat={handleOpenChat} />
 
-        {/* Section 2: Sobre Mí */}
-        <About />
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <About />
+        </motion.div>
 
-        {/* Section 3: Servicios */}
-        <Services />
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <Services />
+        </motion.div>
 
-        {/* Section 4: Tech Stack */}
-        <TechStack />
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <TechStack />
+        </motion.div>
 
-        {/* Section 5: Proyectos Seleccionados */}
-        <Projects />
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <Projects />
+        </motion.div>
 
-        {/* Section 6: Metodología */}
-        <Process />
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <Process />
+        </motion.div>
 
-        {/* Section 7: Contacto & Calculadora */}
-        <Contact />
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <Testimonials />
+        </motion.div>
+
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <FAQ />
+        </motion.div>
+
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <Insights />
+        </motion.div>
+
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>
+          <Contact />
+        </motion.div>
       </main>
 
       {/* Footer */}

@@ -69,11 +69,34 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 ];
 
 export const RoBotChat: React.FC<RoBotChatProps> = ({ isOpen, onClose, onOpen }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem('codix_robot_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {
+      // localStorage error ignore
+    }
+    return INITIAL_MESSAGES;
+  });
+
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'servicios' | 'recomendaciones' | 'negocio' | 'agendar'>('servicios');
+
+  // Persist messages to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem('codix_robot_chat_history', JSON.stringify(messages));
+    } catch {
+      // localStorage error ignore
+    }
+  }, [messages]);
 
   // Booking Form State
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -328,6 +351,11 @@ export const RoBotChat: React.FC<RoBotChatProps> = ({ isOpen, onClose, onOpen })
     soundFX.playClick();
     setMessages(INITIAL_MESSAGES);
     setShowBookingForm(false);
+    try {
+      localStorage.removeItem('codix_robot_chat_history');
+    } catch {
+      // ignore
+    }
   };
 
   const scrollToSection = (id: string) => {
@@ -340,9 +368,9 @@ export const RoBotChat: React.FC<RoBotChatProps> = ({ isOpen, onClose, onOpen })
 
   // Google Calendar Link Generator
   const getGoogleCalendarUrl = (appt: { date: string; time: string; serviceTopic: string; meetLink: string }) => {
-    const title = encodeURIComponent(`Reunión Diagnóstico TECNOVA: ${appt.serviceTopic}`);
+    const title = encodeURIComponent(`Reunión Diagnóstico Códix: ${appt.serviceTopic}`);
     const details = encodeURIComponent(
-      `Videollamada de 30 minutos con el desarrollador de TECNOVA.\nTema: ${appt.serviceTopic}\nEnlace Google Meet: ${appt.meetLink}`
+      `Videollamada de 30 minutos con el desarrollador de Códix.\nTema: ${appt.serviceTopic}\nEnlace Google Meet: ${appt.meetLink}`
     );
     const location = encodeURIComponent(appt.meetLink);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
@@ -421,8 +449,8 @@ export const RoBotChat: React.FC<RoBotChatProps> = ({ isOpen, onClose, onOpen })
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-sm text-white tracking-wide">Ro-Bot</h3>
-                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#314595]/50 border border-[#314595] text-slate-300">
-                    Asistente & Citas
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#EC9731]/20 border border-[#EC9731]/50 text-[#EC9731]">
+                    Gemini AI • Citas
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 font-normal flex items-center gap-1.5">
@@ -908,7 +936,7 @@ export const RoBotChat: React.FC<RoBotChatProps> = ({ isOpen, onClose, onOpen })
               </button>
             </div>
             <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2 px-1 font-mono">
-              <span>Ro-Bot • Asistente oficial TECNOVA</span>
+              <span>Ro-Bot • Asistente oficial Códix</span>
               <button
                 onClick={() => {
                   soundFX.playClick();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Menu, X, ArrowUpRight, Bot } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, ArrowUpRight, Bot, Sun, Moon } from 'lucide-react';
 import { soundFX } from '../utils/soundFX';
+import logoImg from '../assets/images/Logo.png';
 
 interface NavbarProps {
   onOpenContact: () => void;
@@ -12,6 +13,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(soundFX.getMuted());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(() => {
+    try {
+      return localStorage.getItem('codix_theme') === 'light';
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +32,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('codix_theme', isLightMode ? 'light' : 'dark');
+      if (isLightMode) {
+        document.documentElement.classList.add('light-theme');
+      } else {
+        document.documentElement.classList.remove('light-theme');
+      }
+    } catch {
+      // ignore
+    }
+  }, [isLightMode]);
+
+  const toggleTheme = () => {
+    soundFX.playClick();
+    setIsLightMode(!isLightMode);
+  };
 
   const toggleSound = () => {
     const muted = soundFX.toggleMute();
@@ -48,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between gap-8">
-          {/* Zone 1: Single text element wordmark */}
+          {/* Zone 1: Logo image only (src/assets/images/Logo.png) */}
           <a
             href="#"
             onClick={(e) => {
@@ -56,13 +82,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onMouseEnter={() => soundFX.playHover()}
-            className="flex items-center gap-2 group text-xl font-extrabold tracking-tight text-white whitespace-nowrap shrink-0"
+            aria-label="Códix - Inicio"
+            className="flex items-center group shrink-0 cursor-pointer"
           >
-            <span className="w-3 h-3 rounded-full bg-[#EC9731] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_12px_#EC9731]" />
-            <span>TECNOVA</span>
-            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded text-[#EC9731] bg-[#314595]/40 border border-[#314595]">
-              DIGITAL
-            </span>
+            <img
+              src={logoImg}
+              alt="Códix Logo"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/Logo.png';
+              }}
+              className="h-10 sm:h-12 w-auto max-w-[220px] object-contain transition-transform group-hover:scale-105 drop-shadow-[0_0_15px_rgba(236,151,49,0.35)]"
+            />
           </a>
 
           {/* Zone 2: Navigation links */}
@@ -121,6 +151,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               </button>
             )}
+
+            <button
+              onClick={toggleTheme}
+              aria-label={isLightMode ? 'Activar modo oscuro' : 'Activar modo claro'}
+              className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-white/5 transition-colors cursor-pointer"
+              title={isLightMode ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'}
+            >
+              {isLightMode ? <Moon className="w-4 h-4 text-[#EC9731]" /> : <Sun className="w-4 h-4 text-[#EC9731]" />}
+            </button>
 
             <button
               onClick={toggleSound}
@@ -221,7 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact, onOpenChat }) => 
               Iniciar un Proyecto
             </button>
             <p className="text-center text-xs text-slate-500 font-mono">
-              TECNOVA DIGITAL STUDIO © {new Date().getFullYear()}
+              CÓDIX DIGITAL STUDIO © {new Date().getFullYear()}
             </p>
           </div>
         </div>

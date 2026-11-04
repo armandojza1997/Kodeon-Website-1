@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { ProjectItem, ProjectModal } from './ProjectModal';
 import { soundFX } from '../utils/soundFX';
@@ -123,9 +124,13 @@ export const Projects: React.FC = () => {
 
         {/* Project Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {filteredProjects.map((project) => (
-            <div
+          {filteredProjects.map((project, idx) => (
+            <motion.div
               key={project.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
               onMouseEnter={() => soundFX.playHover()}
               className="group glass-panel glass-panel-hover rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between"
             >
@@ -137,11 +142,13 @@ export const Projects: React.FC = () => {
                 }}
                 className="relative aspect-video overflow-hidden cursor-pointer bg-[#070914]"
               >
-                <img
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.5 }}
                   src={project.image}
                   alt={project.name}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover transform group-hover:scale-102 transition-transform duration-500"
+                  className="w-full h-full object-cover"
                 />
 
                 <div className="absolute top-4 left-4 z-10">
@@ -196,7 +203,7 @@ export const Projects: React.FC = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

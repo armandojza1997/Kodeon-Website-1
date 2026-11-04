@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { generateSmartRoBotAnswer } from '../src/utils/roBotEngine';
 
-const ROBOT_SYSTEM_INSTRUCTION = `Eres Ro-Bot, el asistente virtual y compañero robótico del portfolio profesional "TECNOVA" de un Desarrollador Web Senior y Diseñador Creativo.
+const ROBOT_SYSTEM_INSTRUCTION = `Eres Ro-Bot, el asistente virtual y compañero robótico del portfolio profesional "Códix" de un Desarrollador Web Senior y Diseñador Creativo.
 
 Tu rol:
 1. Brindar información detallada y transparente de TODOS nuestros productos, servicios y planes.

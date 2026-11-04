@@ -3,6 +3,7 @@ import { ArrowUp, Github, Linkedin, Mail, Sparkles } from 'lucide-react';
 import { PrivacyModal } from './PrivacyModal';
 import { Aura3DEasterEgg } from './Aura3DEasterEgg';
 import { soundFX } from '../utils/soundFX';
+import logoImg from '../assets/images/Logo.png';
 
 export const Footer: React.FC = () => {
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -64,13 +65,17 @@ export const Footer: React.FC = () => {
                 href="#"
                 onClick={handleLogoComboClick}
                 title="Haz 3 clics rápidos para desbloquear el Huevo de Pascua 3D"
-                className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-white group w-fit cursor-pointer select-none"
+                aria-label="Códix - Inicio"
+                className="flex items-center group w-fit cursor-pointer select-none"
               >
-                <span className="w-3 h-3 rounded-full bg-[#EC9731] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_12px_#EC9731]" />
-                <span>TECNOVA</span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded text-[#EC9731] bg-[#314595]/30 border border-[#314595]/50 group-hover:border-[#EC9731]">
-                  WEB STUDIO
-                </span>
+                <img
+                  src={logoImg}
+                  alt="Códix Logo"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/Logo.png';
+                  }}
+                  className="h-12 sm:h-14 w-auto max-w-[240px] object-contain transition-transform group-hover:scale-105 drop-shadow-[0_0_15px_rgba(236,151,49,0.35)]"
+                />
               </a>
 
               {/* Secret Combo Hint Notification */}
@@ -176,7 +181,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar: Copyright, Legal & Easter Egg trigger button */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
-          <p>© {new Date().getFullYear()} TECNOVA WEB STUDIO. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} CÓDIX WEB STUDIO. Todos los derechos reservados.</p>
 
           <div className="flex items-center gap-6">
             <button

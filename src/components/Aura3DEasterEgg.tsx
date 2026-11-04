@@ -333,7 +333,7 @@ export const Aura3DEasterEgg: React.FC<Aura3DEasterEggProps> = ({ isOpen, onClos
         </div>
 
         <h3 className="text-xl sm:text-2xl font-extrabold text-white text-center mb-1">
-          TECNOVA 3D Quantum Core
+          Códix 3D Quantum Core
         </h3>
         <p className="text-xs font-mono text-slate-400 text-center mb-4">
           Arrastra con el ratón para rotar el núcleo 3D en tiempo real
