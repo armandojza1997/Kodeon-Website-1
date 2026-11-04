@@ -14,7 +14,7 @@ export const createPool = () => {
   const database = process.env.SQL_DB_NAME;
 
   if (!host || !user || !database) {
-    console.warn("Missing DB environment variables. SQL_HOST, SQL_USER, or SQL_DB_NAME is undefined.");
+    throw new Error(`Missing SQL environment variables. Ensure SQL_HOST, SQL_USER, and SQL_DB_NAME are set. Host: ${host ? 'set' : 'MISSING'}, User: ${user ? 'set' : 'MISSING'}, DB: ${database ? 'set' : 'MISSING'}`);
   }
 
   const config = {
@@ -32,6 +32,7 @@ export const createPool = () => {
       global._postgresPool = new Pool(config);
       global._postgresPool.on('error', (err: any) => {
         console.error('Unexpected error on idle SQL pool client:', err);
+        global._postgresPool = undefined; // Force recreate on next attempt
       });
     } catch (e) {
       console.error('Error creating PG Pool:', e);
@@ -46,10 +47,10 @@ export const getDb = () => {
     const pool = createPool();
     return drizzle(pool, { schema });
   } catch (error) {
-    console.error('getDb failed:', error);
+    console.error('getDb initialization failed:', error);
     throw error;
   }
 };
 
-// Default export for simplicity in some contexts
-export const db = getDb();
+// Remove the top-level execution to prevent module-load crashes in serverless
+// export const db = getDb(); 

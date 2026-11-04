@@ -127,7 +127,13 @@ export default function App() {
           setIsAdminOpen(false);
           if (isLoginPage) {
             window.history.pushState({}, '', '/');
-            setCurrentPath('/'); // Immediate feedback
+            setCurrentPath('/'); 
+            // Fallback for extreme cases where state doesn't trigger re-render
+            setTimeout(() => {
+              if (window.location.pathname === '/admin/login') {
+                window.location.href = '/';
+              }
+            }, 100);
           }
         }} 
       />

@@ -65,15 +65,18 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({ isOpen, onClose }) => {
       });
       
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setUser(data.user);
         sessionStorage.setItem('codix_admin_session', JSON.stringify({ token: data.token, user: data.user }));
         soundFX.playSuccess();
       } else {
-        setStatus({ type: 'error', message: data.error || 'Credenciales incorrectas' });
+        setStatus({ 
+          type: 'error', 
+          message: data.details ? `Error: ${data.details}` : (data.error || 'Credenciales incorrectas') 
+        });
       }
-    } catch (error) {
-      setStatus({ type: 'error', message: 'Error de conexión' });
+    } catch (error: any) {
+      setStatus({ type: 'error', message: 'Error de conexión con el servidor (500)' });
     } finally {
       setLoading(false);
     }
